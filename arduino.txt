@@ -1,0 +1,57 @@
+
+ const int sensor = 0;    //  entrada del sensor LM35
+ const int ledRojo = 5;   //  pin del LED rojo
+ const int ledAzul = 6;    //  pin del LED azul
+
+ long miliVolts;
+ int brillo;
+ 
+// Declaracion de variables globales
+float tempC; // Variable para almacenar el valor obtenido del sensor (0 a 1023)
+int pinLM35 = 0; // Variable del pin de entrada del sensor (A0)
+
+
+int pinBuzzer = 9;
+void setup() {
+  // Configuramos el puerto serial a 9600 bps
+  Serial.begin(9600);
+  pinMode(ledRojo, OUTPUT);
+  pinMode(ledAzul, OUTPUT);
+}
+ 
+void loop() {
+  
+  // Con analogRead leemos el sensor, recuerda que es un valor de 0 a 1023
+  tempC = analogRead(pinLM35); 
+   
+  // Calculamos la temperatura con la fórmula
+  tempC = (5.0 * tempC * 100.0)/1024.0; 
+  
+  if(tempC>30){
+   tone(pinBuzzer, 440);
+  }
+  
+  if(tempC<=30){
+   tone(pinBuzzer, 261);
+  }
+  
+  brillo = map(tempC, 25, 30, 0, 255);      // ajustamos la escala de temperatura para usar analogWrite
+  brillo = constrain(brillo, 0, 255);             // limitar el rango de brillo a 0 - 255
+
+  analogWrite(ledRojo, brillo);
+  analogWrite(ledAzul, 255 - brillo);             // ajustamos el color del LED
+  
+  /*Serial.print("Temperatura: ");            // Mandamos la temperatura por
+   *Serial.print(temperatura);                // serial
+   *Serial.println(" grados");
+   *delay(200);*/                             // Esperamos para no saturar el monitor
+ // Envia el dato al puerto serial
+  Serial.print(tempC);
+  // Salto de línea
+  Serial.print("\n");
+  
+  // Esperamos un tiempo para repetir el loop
+  delay(1000);
+
+  
+}
